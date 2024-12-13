@@ -4,11 +4,11 @@ let score = 0;
 let timer;
 
 const objects = [
-  { name: "Stars", count: 8, image: "star.png", options: [2, 3, 8, 5] },
-  { name: "Balls", count: 6, image: "ball.png", options: [1, 6, 4, 8] },
-  { name: "Butterflies", count: 10, image: "butterfly.png", options: [5, 7, 10, 8] },
-  { name: "Flowers", count: 7, image: "flower.png", options: [3, 5, 7, 8] },
-  { name: "Rainbows", count: 4, image: "rainbow.png", options: [3, 4, 6, 7] }
+  { name: "Stars", count: 8, image: "/static/images/star.png", options: [2, 3, 8, 5] },
+  { name: "Balls", count: 6, image: "/static/images/ball.png", options: [1, 6, 4, 8] },
+  { name: "Butterflies", count: 10, image: "/static/images/butterfly.png", options: [5, 7, 10, 8] },
+  { name: "Flowers", count: 7, image: "/static/images/flower.png", options: [3, 5, 7, 8] },
+  { name: "Rainbows", count: 4, image: "/static/images/rainbow.png", options: [3, 4, 6, 7] }
 ];
 
 let currentRound = 0;
@@ -32,7 +32,7 @@ function loadGame() {
 
   for (let i = 0; i < current.count; i++) {
     const img = document.createElement("img");
-    img.src = `images/${current.image}`;
+    img.src = current.image;
     grid.appendChild(img);
   }
 
@@ -140,7 +140,7 @@ loadGame();
 
 
 function sendScoreToBackend(score, gameType) {
-  fetch('http://127.0.0.1:5000/save_score', {
+  fetch('/submit_score', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -163,10 +163,32 @@ function showGameOver() {
   const finalScore = document.getElementById("final-score");
   finalScore.innerText = score;
   scoreFrame.classList.remove("hidden");
-  
+
   // Send score to backend
-  sendScoreToBackend(score, "counting");
-  
+  sendScoreToBackend(score, "Counting Game");
+
   const congratsAudio = document.getElementById("congrats-audio");
   congratsAudio.play();
 }
+
+
+function submitScore(score) {
+  fetch('/submit_score', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          score: score,
+          game_type: 'Counting Game', // Specify your game type
+      }),
+  })
+  .then(response => response.json())
+  .then(data => {
+      console.log(data.message || data.error);
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+// Call this function when the game ends with the final score
+// Example: submitScore(50);
